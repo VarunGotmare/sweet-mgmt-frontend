@@ -5,7 +5,6 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './auth/authContext.tsx'
 import { Toaster } from 'react-hot-toast'
-import "@fontsource-variable/inter";
 
 
 
