@@ -12,6 +12,9 @@ import { restockSweet } from "../api/sweets.api";
 import { deleteSweet } from "../api/sweets.api";
 import ConfirmModal from "../components/Modals/ConfirmModal";
 
+import EditSweetModal from "../components/Modals/EditSweetModal";
+import { updateSweet } from "../api/sweets.api";
+
 
 import SweetsTable from "../components/SweetTable";
 
@@ -28,6 +31,9 @@ export default function Admin() {
   const [selectedSweet, setSelectedSweet] = useState<Sweet | null>(null);
 
   const [sweetToDelete, setSweetToDelete] = useState<Sweet | null>(null);
+
+  const [sweetToEdit, setSweetToEdit] = useState<Sweet | null>(null);
+
 
 
   const [page, setPage] = useState(1);
@@ -89,6 +95,34 @@ export default function Admin() {
     }
   };
 
+  const handleEditSweet = async (data: {
+    name: string;
+    category: string;
+    price: string | number;
+    quantity: number;
+  }) => {
+    if (!sweetToEdit) return;
+
+    const toastId = toast.loading("Updating sweet...");
+
+    try {
+      const updated = await updateSweet(sweetToEdit.id, data);
+
+      setSweets((prev) =>
+        prev.map((s) =>
+          s.id === sweetToEdit.id ? updated : s
+        )
+      );
+
+      toast.success("Sweet updated", { id: toastId });
+      setSweetToEdit(null);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Update failed",
+        { id: toastId }
+      );
+    }
+  };
 
 
   useEffect(() => {
@@ -159,6 +193,7 @@ export default function Admin() {
           onPageChange={setPage}
           onRestockClick={setSelectedSweet}
           onDeleteClick={setSweetToDelete}
+          onEditClick={setSweetToEdit}
         />
       )}
       {selectedSweet && (
@@ -181,6 +216,13 @@ export default function Admin() {
         />
       )}
 
+      {sweetToEdit && (
+        <EditSweetModal
+          sweet={sweetToEdit}
+          onClose={() => setSweetToEdit(null)}
+          onConfirm={handleEditSweet}
+        />
+      )}
 
     </div>
   );
