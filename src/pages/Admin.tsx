@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import toast from "react-hot-toast";
 
 import { getAllSweets } from "../api/sweets.api";
 import type { Sweet } from "../api/sweets.api";
+
+import QuantityModal from "../components/QuantityModal";
+import { restockSweet } from "../api/sweets.api";
 
 import SweetsTable from "../components/SweetTable";
 
@@ -17,6 +21,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [selectedSweet, setSelectedSweet] = useState<Sweet | null>(null);
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -24,6 +30,35 @@ export default function Admin() {
     logout();
     navigate("/login");
   };
+
+  const handleRestock = async (quantity: number) => {
+    if (!selectedSweet) return;
+
+    const toastId = toast.loading("Restocking...");
+
+    try {
+      const res = await restockSweet(selectedSweet.id, quantity);
+
+      setSweets((prev) =>
+        prev.map((s) =>
+          s.id === selectedSweet.id
+            ? { ...s, quantity: res.updatedQuantity }
+            : s
+        )
+      );
+
+      toast.success(
+        `Restocked ${quantity} ${selectedSweet.name}`,
+        { id: toastId }
+      );
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Restock failed",
+        { id: toastId }
+      );
+    }
+  };
+
 
   useEffect(() => {
     fetchSweets(page);
@@ -91,12 +126,19 @@ export default function Admin() {
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}
-          onRestockClick={(sweet) => {
-            // next step: open restock modal
-            console.log("Restock:", sweet.name);
-          }}
+          onRestockClick={setSelectedSweet}
         />
       )}
+      {selectedSweet && (
+        <QuantityModal
+          title={`Restock ${selectedSweet.name}`}
+          description={`Current stock: ${selectedSweet.quantity}`}
+          confirmText="Restock"
+          onClose={() => setSelectedSweet(null)}
+          onConfirm={handleRestock}
+        />
+      )}
+
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllSweets, searchSweets } from "../api/sweets.api";
+import { getAllSweets, searchSweets, purchaseSweet } from "../api/sweets.api";
 import type { Sweet } from "../api/sweets.api";
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -7,10 +7,7 @@ import toast from "react-hot-toast";
 
 import SweetsTable from "../components/SweetTable";
 import SweetsSearch from "../components/SweetSearch";
-
-import PurchaseModal from "../components/PurchaseModal";
-import { purchaseSweet } from "../api/sweets.api";
-
+import QuantityModal from "../components/QuantityModal";
 
 const LIMIT = 10;
 
@@ -30,6 +27,8 @@ export default function Home() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
+  /* ---------------- FETCH SWEETS ---------------- */
+
   useEffect(() => {
     fetchSweets(page);
   }, [page, searchName, searchCategory]);
@@ -43,11 +42,11 @@ export default function Home() {
 
       const res = hasSearch
         ? await searchSweets({
-          name: searchName || undefined,
-          category: searchCategory || undefined,
-          page: pageNumber,
-          limit: LIMIT,
-        })
+            name: searchName || undefined,
+            category: searchCategory || undefined,
+            page: pageNumber,
+            limit: LIMIT,
+          })
         : await getAllSweets(pageNumber, LIMIT);
 
       setSweets(res.data);
@@ -59,10 +58,12 @@ export default function Home() {
     }
   };
 
+  // Reset page when search changes
   useEffect(() => {
     setPage(1);
   }, [searchName, searchCategory]);
 
+  /* ---------------- ACTIONS ---------------- */
 
   const handleLogout = () => {
     logout();
@@ -89,6 +90,9 @@ export default function Home() {
         `Purchased ${quantity} ${selectedSweet.name}`,
         { id: toastId }
       );
+
+      // ✅ close modal after success
+      setSelectedSweet(null);
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || "Purchase failed",
@@ -97,13 +101,15 @@ export default function Home() {
     }
   };
 
-
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="min-h-screen bg-zinc-950 p-6 text-white">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-pink-500">Available Sweets</h1>
+        <h1 className="text-3xl font-bold text-pink-500">
+          Available Sweets
+        </h1>
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-zinc-400">{user?.name}</span>
@@ -128,7 +134,6 @@ export default function Home() {
         }}
       />
 
-
       {/* Content */}
       {loading && (
         <div className="flex h-[60vh] items-center justify-center">
@@ -149,24 +154,26 @@ export default function Home() {
       )}
 
       {!loading && !error && sweets.length > 0 && (
-        <>
-          <SweetsTable
-            sweets={sweets}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            onPurchaseClick={setSelectedSweet}
-          />
-        </>
+        <SweetsTable
+          sweets={sweets}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          onPurchaseClick={setSelectedSweet}
+        />
       )}
+
+      {/* Purchase Modal */}
       {selectedSweet && (
-        <PurchaseModal
-          sweet={selectedSweet}
+        <QuantityModal
+          title={`Purchase ${selectedSweet.name}`}
+          description={`Available stock: ${selectedSweet.quantity}`}
+          confirmText="Purchase"
+          maxQuantity={selectedSweet.quantity}
           onClose={() => setSelectedSweet(null)}
           onConfirm={handleConfirmPurchase}
         />
       )}
-
     </div>
   );
 }
