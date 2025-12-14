@@ -15,19 +15,41 @@ export type SweetSearchParams = {
   maxPrice?: string | number;
 };
 
+//pagination for optimizaztion
+export type Pagination = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedSweetsResponse = {
+  data: Sweet[];
+  pagination: Pagination;
+};
+
+
 //get all sweets
 
-export async function getAllSweets(): Promise<Sweet[]> {
-  const res = await api.get<Sweet[]>("/api/sweets");
+export async function getAllSweets(
+    page = 1,
+    limit = 10
+): Promise<PaginatedSweetsResponse> {
+  const res = await api.get<PaginatedSweetsResponse>("/api/sweets",{
+    params: { page, limit },
+  });
   return res.data;
 }
 
 //search sweets
 
 export async function searchSweets(
-  params: SweetSearchParams
-): Promise<Sweet[]> {
-  const res = await api.get<Sweet[]>("/api/sweets/search", {
+  params: SweetSearchParams & {
+    page?: number;
+    limit?: number;
+  }
+): Promise<PaginatedSweetsResponse> {
+  const res = await api.get<PaginatedSweetsResponse>("/api/sweets/search", {
     params,
   });
   return res.data;

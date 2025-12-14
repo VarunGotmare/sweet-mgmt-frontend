@@ -4,22 +4,12 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import AdminRoute from "./auth/AdminRoute";
 import PublicRoute from "./auth/PublicRoute";
+import Home from "./pages/Home";
+import Admin from "./pages/Admin";
 
-function Home() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">Home</h1>
-    </div>
-  );
-}
 
-function AdminDashboard() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-    </div>
-  );
-}
+
+
 
 function App() {
   return (
@@ -51,7 +41,7 @@ function App() {
         path="/admin"
         element={
           <AdminRoute>
-            <AdminDashboard />
+            <Admin />
           </AdminRoute>
         }
       />
