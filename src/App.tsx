@@ -5,7 +5,9 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import AdminRoute from "./auth/AdminRoute";
 import PublicRoute from "./auth/PublicRoute";
 import Home from "./pages/Home";
-import Admin from "./pages/Admin";
+import Admin from "./pages/admin/Admin";
+import AdminSweets from "./pages/admin/AdminSweets";
+import AdminTransactions from "./pages/admin/AdminTransactions";
 
 
 
@@ -37,14 +39,13 @@ function App() {
       />
 
       {/* only for admins */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <Admin />
-          </AdminRoute>
-        }
-      />
+      <Route path="/admin" element={<Admin />}>
+        <Route index element={<AdminSweets />} />
+        <Route
+          path="transactions"
+          element={<AdminTransactions />}
+        />
+      </Route>
 
       {/* idk chatgpt */}
       <Route path="*" element={<Navigate to="/" />} />
