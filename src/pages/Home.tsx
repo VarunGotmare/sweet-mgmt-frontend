@@ -3,6 +3,7 @@ import { getAllSweets, searchSweets } from "../api/sweets.api";
 import type { Sweet } from "../api/sweets.api";
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import SweetsTable from "../components/SweetTable";
 import SweetsSearch from "../components/SweetSearch";
@@ -71,17 +72,31 @@ export default function Home() {
   const handleConfirmPurchase = async (quantity: number) => {
     if (!selectedSweet) return;
 
-    const res = await purchaseSweet(selectedSweet.id, quantity);
+    const toastId = toast.loading("Processing purchase...");
 
+    try {
+      const res = await purchaseSweet(selectedSweet.id, quantity);
 
-    setSweets((prev) =>
-      prev.map((s) =>
-        s.id === selectedSweet.id
-          ? { ...s, quantity: res.remainingQuantity }
-          : s
-      )
-    );
+      setSweets((prev) =>
+        prev.map((s) =>
+          s.id === selectedSweet.id
+            ? { ...s, quantity: res.remainingQuantity }
+            : s
+        )
+      );
+
+      toast.success(
+        `Purchased ${quantity} ${selectedSweet.name}`,
+        { id: toastId }
+      );
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Purchase failed",
+        { id: toastId }
+      );
+    }
   };
+
 
 
   return (

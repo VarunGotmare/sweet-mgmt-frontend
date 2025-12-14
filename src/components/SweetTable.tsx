@@ -5,8 +5,14 @@ type Props = {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  onPurchaseClick: (sweet: Sweet) => void; 
+
+  // optional actions
+  onPurchaseClick?: (sweet: Sweet) => void;
+  onRestockClick?: (sweet: Sweet) => void;
+  onEditClick?: (sweet: Sweet) => void;
+  onDeleteClick?: (sweet: Sweet) => void;
 };
+
 
 export default function SweetsTable({
   sweets,
@@ -14,6 +20,9 @@ export default function SweetsTable({
   totalPages,
   onPageChange,
   onPurchaseClick,
+  onRestockClick,
+  onEditClick,
+  onDeleteClick,
 }: Props) {
   return (
     <div className="space-y-6">
@@ -72,25 +81,54 @@ export default function SweetsTable({
 
             {/* Desktop stock */}
             <div
-              className={`hidden md:block ${
-                sweet.quantity > 0
+              className={`hidden md:block ${sweet.quantity > 0
                   ? "text-green-400"
                   : "text-red-400"
-              }`}
+                }`}
             >
               {sweet.quantity}
             </div>
 
             {/* Action */}
-            <div className="mt-3 md:mt-0 md:text-right">
-              <button
-                disabled={sweet.quantity === 0}
-                onClick={() => onPurchaseClick(sweet)}
-                className="w-full md:w-auto rounded bg-pink-600 px-3 py-2 text-sm text-white hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Purchase
-              </button>
+            <div className="mt-3 md:mt-0 md:text-right flex gap-2 justify-end flex-wrap">
+              {onPurchaseClick && (
+                <button
+                  disabled={sweet.quantity === 0}
+                  onClick={() => onPurchaseClick(sweet)}
+                  className="rounded bg-pink-600 px-3 py-2 text-sm text-white hover:bg-pink-700 disabled:opacity-50"
+                >
+                  Purchase
+                </button>
+              )}
+
+              {onRestockClick && (
+                <button
+                  onClick={() => onRestockClick(sweet)}
+                  className="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                >
+                  Restock
+                </button>
+              )}
+
+              {onEditClick && (
+                <button
+                  onClick={() => onEditClick(sweet)}
+                  className="rounded bg-yellow-600 px-3 py-2 text-sm text-white hover:bg-yellow-700"
+                >
+                  Edit
+                </button>
+              )}
+
+              {onDeleteClick && (
+                <button
+                  onClick={() => onDeleteClick(sweet)}
+                  className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              )}
             </div>
+
           </div>
         ))}
       </div>
