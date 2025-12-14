@@ -6,8 +6,12 @@ import toast from "react-hot-toast";
 import { getAllSweets } from "../api/sweets.api";
 import type { Sweet } from "../api/sweets.api";
 
-import QuantityModal from "../components/QuantityModal";
+import QuantityModal from "../components/Modals/QuantityModal";
 import { restockSweet } from "../api/sweets.api";
+
+import { deleteSweet } from "../api/sweets.api";
+import ConfirmModal from "../components/Modals/ConfirmModal";
+
 
 import SweetsTable from "../components/SweetTable";
 
@@ -22,6 +26,9 @@ export default function Admin() {
   const [error, setError] = useState<string | null>(null);
 
   const [selectedSweet, setSelectedSweet] = useState<Sweet | null>(null);
+
+  const [sweetToDelete, setSweetToDelete] = useState<Sweet | null>(null);
+
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -58,6 +65,30 @@ export default function Admin() {
       );
     }
   };
+
+  const handleDelete = async () => {
+    if (!sweetToDelete) return;
+
+    const toastId = toast.loading("Deleting sweet...");
+
+    try {
+      await deleteSweet(sweetToDelete.id);
+
+      // Optimistic UI update
+      setSweets((prev) =>
+        prev.filter((s) => s.id !== sweetToDelete.id)
+      );
+
+      toast.success("Sweet deleted", { id: toastId });
+      setSweetToDelete(null);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Delete failed",
+        { id: toastId }
+      );
+    }
+  };
+
 
 
   useEffect(() => {
@@ -127,6 +158,7 @@ export default function Admin() {
           totalPages={totalPages}
           onPageChange={setPage}
           onRestockClick={setSelectedSweet}
+          onDeleteClick={setSweetToDelete}
         />
       )}
       {selectedSweet && (
@@ -138,6 +170,17 @@ export default function Admin() {
           onConfirm={handleRestock}
         />
       )}
+
+      {sweetToDelete && (
+        <ConfirmModal
+          title="Delete Sweet"
+          description={`Are you sure you want to delete "${sweetToDelete.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          onCancel={() => setSweetToDelete(null)}
+          onConfirm={handleDelete}
+        />
+      )}
+
 
     </div>
   );

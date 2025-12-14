@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 import SweetsTable from "../components/SweetTable";
 import SweetsSearch from "../components/SweetSearch";
-import QuantityModal from "../components/QuantityModal";
+import QuantityModal from "../components/Modals/QuantityModal";
 
 const LIMIT = 10;
 
@@ -27,7 +27,7 @@ export default function Home() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
-  /* ---------------- FETCH SWEETS ---------------- */
+  /*fetch sweets */
 
   useEffect(() => {
     fetchSweets(page);
@@ -58,12 +58,11 @@ export default function Home() {
     }
   };
 
-  // Reset page when search changes
+  //reset page when search changes
   useEffect(() => {
     setPage(1);
   }, [searchName, searchCategory]);
 
-  /* ---------------- ACTIONS ---------------- */
 
   const handleLogout = () => {
     logout();
@@ -91,7 +90,7 @@ export default function Home() {
         { id: toastId }
       );
 
-      // ✅ close modal after success
+      //close modal after success
       setSelectedSweet(null);
     } catch (err: any) {
       toast.error(
@@ -100,8 +99,6 @@ export default function Home() {
       );
     }
   };
-
-  /* ---------------- UI ---------------- */
 
   return (
     <div className="min-h-screen bg-zinc-950 p-6 text-white">

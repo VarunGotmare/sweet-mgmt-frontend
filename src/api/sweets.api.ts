@@ -97,7 +97,18 @@ export async function updateSweet(
 }
 
 //detelte swweet
+export async function deleteSweet(
+    sweetId: string
+): Promise<{ message: string }> {
+    const res = await api.delete<{ message: string }>(
+        `/api/sweets/${sweetId}`
+    );
+    return res.data;
+}
 
+
+
+//restock sweet
 export async function restockSweet(
     sweetId: string,
     quantity: number
