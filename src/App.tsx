@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import AdminRoute from "./auth/AdminRoute";
 import PublicRoute from "./auth/PublicRoute";
 import Home from "./pages/Home";
 import Admin from "./pages/admin/Admin";
